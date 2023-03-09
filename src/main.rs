@@ -2,8 +2,17 @@ fn main() {
     let n_field = 101;
     let point_g1 = Point {x:1 , y:2 , field: n_field};
     let point_g2 = point_doubling(point_g1.clone());    
-    let (a , b , c) = extended_euclidean_algorithm(1180, 482);
-    println!("a: {}, b: {}, c: {}", a, b, c);
+    let (a , b , c) = extended_euclidean_algorithm(81, 57);
+    // println!("a: {}, b: {}, c: {}", a, b, c);
+
+    let test1 = modular_exp(3, 17, 17);
+    let test2 = modular_exp(5, 17, 17);
+    let test3 = modular_exp(7, 16, 17);
+
+    println!("test1: {}", test1);
+    println!("test2: {}", test2);
+    println!("test3: {}", test3);
+
 }
 #[derive(Debug,Clone)]
 struct Point {
@@ -58,13 +67,32 @@ pub fn modular_division(a: i128, b: i128, n: i128) -> i128 {
     0
 }
 
-pub fn modular_exp(a:i128, exp: i128, n: i128) -> i128 {
-    let mut result = 0;
-    for i in 0..exp {
-        result = modular_multiplication(a , a, n);
-    };
+// pub fn modular_exp(a:i128, exp: i128, n: i128) -> i128 {
+//     let mut result = 0;
+//     for i in 0..exp {
+//         result = modular_multiplication(a , a, n);
+//     };
+//     result
+// }
+
+fn modular_exp(base: i128, exponent: i128, modulus: i128) -> i128 {
+    if modulus == 1 {
+        return 0;
+    }
+    let mut result = 1;
+    let mut base = base % modulus;
+    let mut exp = exponent;
+    while exp > 0 {
+        if exp % 2 == 1 {
+            result = (result * base) % modulus;
+        }
+        exp >>= 1;
+        base = (base * base) % modulus;
+    }
     result
 }
+
+
 
 pub fn module(a: i128 , n: i128) -> i128 {
     let mut result = a % n;
