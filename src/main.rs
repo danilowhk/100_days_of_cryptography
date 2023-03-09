@@ -2,6 +2,8 @@ fn main() {
     let n_field = 101;
     let point_g1 = Point {x:1 , y:2 , field: n_field};
     let point_g2 = point_doubling(point_g1.clone());    
+    let (a , b , c) = extended_euclidean_algorithm(1180, 482);
+    println!("a: {}, b: {}, c: {}", a, b, c);
 }
 #[derive(Debug,Clone)]
 struct Point {
@@ -93,12 +95,37 @@ pub fn greater_common_divisor_2( mut a: i128, mut b: i128) -> i128 {
 }
 
 pub fn extended_euclidean_algorithm(a: i128, b: i128) -> (i128, i128, i128){
-    todo!
+
+    // b0 = a0 * q + r0
+    // b1 = a1 * q + r1 => b1 = a0 , a1 = r0
+    // So b1 = a1*q + r1 => a0 = r0*q + r1
+    // So nth => bn = an*q + rn => an-1 = rn-1*q + rn
+    println!("a: {}, b: {}", a, b);
+    if a == 0 {
+        return (b , 0 , 1)
+    }
+    // b % a = remainder => rn
+    // bn = an-1
+    // (b % a , a) => (rn , an-1) => (an , bn) 
+    let (gcd, x1, y1) = extended_euclidean_algorithm(b % a, a);
+
+    //TODO: explain details
+    let x = y1 - (b / a) * x1;
+    let y = x1;
+
+    (gcd, x, y)
 }
 
 #[test]
 fn crypto_hack_modular_arithmetic_gcd_exercise_1(){
     assert_eq!(greater_common_divisor(66528, 52920), 1512);
+}
+
+#[test]
+fn crypto_hack_extended_euclidean_algorithm_exercise_2(){
+    let (gcd, x , y) = extended_euclidean_algorithm(26513, 32321);
+    assert_eq!(x, 10245);
+    assert_eq!(y, -8404);
 }
 
 #[test]
