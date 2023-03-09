@@ -63,8 +63,30 @@ pub fn modular_multiplication(a: i128, b: i128, n:i128) -> i128 {
     result
 }
 
-pub fn modular_division(a: i128, b: i128, n: i128) -> i128 {
-    0
+
+// Fermat's little theorem can help us find the modular inverse of an integer a modulo a prime number p.
+
+// The modular inverse of a modulo p is the integer b such that a * b ≡ 1 (mod p). We can use Fermat's little theorem to find the modular inverse as follows:
+
+// Compute a^(p-2) mod p using modular_exponentiation(a, p-2, p).
+// The result of a^(p-2) mod p is the modular inverse b of a modulo p.
+// This method works only if p is a prime number and a is not divisible by p. If p is not a prime or a is divisible by p, then this method may not work.
+pub fn modular_inversion(a: i128, modulus: i128) -> Option<i128> {
+    if modulus <= 1 {
+        return None;
+    }
+
+    // Calculate a^(p-2) mod p using modular exponentiation
+    let b = modular_exp(a, modulus - 2, modulus);
+
+    // Check if a and p are coprime
+    if greater_common_divisor(a, modulus) == 1{
+        // If a and p are coprime, return the modular inverse
+        Some(b)
+    } else {
+        // If a and p are not coprime, the modular inverse does not exist
+        None
+    }
 }
 
 
