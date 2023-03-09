@@ -5,13 +5,13 @@ fn main() {
     let (a , b , c) = extended_euclidean_algorithm(81, 57);
     // println!("a: {}, b: {}, c: {}", a, b, c);
 
-    let test1 = modular_exp(3, 17, 17);
-    let test2 = modular_exp(5, 17, 17);
-    let test3 = modular_exp(7, 16, 17);
+    // let test1 = modular_exp(273246787654, 65536, 17);
+    // let test2 = modular_exp(5, 17, 17);
+    // let test3 = modular_exp(7, 16, 17);
 
-    println!("test1: {}", test1);
-    println!("test2: {}", test2);
-    println!("test3: {}", test3);
+    // println!("test1: {}", test1);
+    // println!("test2: {}", test2);
+    // println!("test3: {}", test3);
 
 }
 #[derive(Debug,Clone)]
@@ -67,14 +67,17 @@ pub fn modular_division(a: i128, b: i128, n: i128) -> i128 {
     0
 }
 
-// pub fn modular_exp(a:i128, exp: i128, n: i128) -> i128 {
-//     let mut result = 0;
-//     for i in 0..exp {
-//         result = modular_multiplication(a , a, n);
-//     };
-//     result
-// }
 
+// The function modular_exp(base: i128, exponent: i128, modulus: i128) provides an efficient way to compute the modular exponentiation base^exponent mod modulus.
+
+// Fermat's little theorem states that for any prime number p and any integer a not divisible by p, a^(p-1) ≡ 1 (mod p).
+
+// The function modular_exponentiation can be used to prove Fermat's little theorem as follows:
+
+// Let a be any integer not divisible by p.
+// Compute a^(p-1) mod p using modular_exponentiation(a, p-1, p).
+// According to the function modular_exponentiation, the result of a^(p-1) mod p is equal to the remainder when a^(p-1) is divided by p. Therefore, if the remainder is 1, then a^(p-1) ≡ 1 (mod p), which proves Fermat's little theorem.
+// For example, let's take a=2 and p=5, which is a prime number. According to Fermat's little theorem, 2^4 ≡ 1 (mod 5). We can use the function modular_exponentiation to verify this as follows:
 fn modular_exp(base: i128, exponent: i128, modulus: i128) -> i128 {
     if modulus == 1 {
         return 0;
