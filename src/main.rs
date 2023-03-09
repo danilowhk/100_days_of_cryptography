@@ -3,6 +3,8 @@ fn main() {
     let point_g1 = Point {x:1 , y:2 , field: n_field};
     let point_g2 = point_doubling(point_g1.clone());    
     let (a , b , c) = extended_euclidean_algorithm(81, 57);
+    let invert = modular_inversion(3, 13);
+    println!("Invert: {:?}", invert);
     // println!("a: {}, b: {}, c: {}", a, b, c);
 
     // let test1 = modular_exp(273246787654, 65536, 17);
@@ -64,13 +66,13 @@ pub fn modular_multiplication(a: i128, b: i128, n:i128) -> i128 {
 }
 
 
-// Fermat's little theorem can help us find the modular inverse of an integer a modulo a prime number p.
+/// Fermat's little theorem can help us find the modular inverse of an integer a modulo a prime number p.
 
-// The modular inverse of a modulo p is the integer b such that a * b ≡ 1 (mod p). We can use Fermat's little theorem to find the modular inverse as follows:
+/// The modular inverse of a modulo p is the integer b such that a * b ≡ 1 (mod p). We can use Fermat's little theorem to find the modular inverse as follows:
 
-// Compute a^(p-2) mod p using modular_exponentiation(a, p-2, p).
-// The result of a^(p-2) mod p is the modular inverse b of a modulo p.
-// This method works only if p is a prime number and a is not divisible by p. If p is not a prime or a is divisible by p, then this method may not work.
+/// Compute a^(p-2) mod p using modular_exponentiation(a, p-2, p).
+/// The result of a^(p-2) mod p is the modular inverse b of a modulo p.
+/// This method works only if p is a prime number and a is not divisible by p. If p is not a prime or a is divisible by p, then this method may not work.
 pub fn modular_inversion(a: i128, modulus: i128) -> Option<i128> {
     if modulus <= 1 {
         return None;
@@ -90,16 +92,16 @@ pub fn modular_inversion(a: i128, modulus: i128) -> Option<i128> {
 }
 
 
-// The function modular_exp(base: i128, exponent: i128, modulus: i128) provides an efficient way to compute the modular exponentiation base^exponent mod modulus.
+/// The function modular_exp(base: i128, exponent: i128, modulus: i128) provides an efficient way to compute the modular exponentiation base^exponent mod modulus.
 
-// Fermat's little theorem states that for any prime number p and any integer a not divisible by p, a^(p-1) ≡ 1 (mod p).
+/// Fermat's little theorem states that for any prime number p and any integer a not divisible by p, a^(p-1) ≡ 1 (mod p).
 
-// The function modular_exponentiation can be used to prove Fermat's little theorem as follows:
+/// The function modular_exponentiation can be used to prove Fermat's little theorem as follows:
 
-// Let a be any integer not divisible by p.
-// Compute a^(p-1) mod p using modular_exponentiation(a, p-1, p).
-// According to the function modular_exponentiation, the result of a^(p-1) mod p is equal to the remainder when a^(p-1) is divided by p. Therefore, if the remainder is 1, then a^(p-1) ≡ 1 (mod p), which proves Fermat's little theorem.
-// For example, let's take a=2 and p=5, which is a prime number. According to Fermat's little theorem, 2^4 ≡ 1 (mod 5). We can use the function modular_exponentiation to verify this as follows:
+/// Let a be any integer not divisible by p.
+/// Compute a^(p-1) mod p using modular_exponentiation(a, p-1, p).
+/// According to the function modular_exponentiation, the result of a^(p-1) mod p is equal to the remainder when a^(p-1) is divided by p. Therefore, if the remainder is 1, then a^(p-1) ≡ 1 (mod p), which proves Fermat's little theorem.
+/// For example, let's take a=2 and p=5, which is a prime number. According to Fermat's little theorem, 2^4 ≡ 1 (mod 5). We can use the function modular_exponentiation to verify this as follows:
 fn modular_exp(base: i128, exponent: i128, modulus: i128) -> i128 {
     if modulus == 1 {
         return 0;
@@ -191,4 +193,13 @@ fn crypto_hack_modular_arithmetic_module_exercise_3(){
     assert_eq!(module(8146798528947, 17), 4);
 }
 
+#[test]
+fn crypto_hack_modular_exp_exercise_4(){
+    assert_eq!(modular_exp(273246787654, 65536, 65537), 1);
+}
+
+#[test]
+fn crypto_hack_modular_invert_exercise_5(){
+    assert_eq!(modular_inversion(3,13), Some(9));
+}
 
