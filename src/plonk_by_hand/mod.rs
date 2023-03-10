@@ -70,6 +70,91 @@ pub fn run_part_1() {
     let inverted_point_32g = point_inversion(point_32g.clone());
     println!("32G: {:?}", point_32g);
     println!("Inverted 32G: {:?}", inverted_point_32g);
+
+
+    // Calculate Embedding Degree
+    // The degree of the extension field of characteristic p that contains every point of order r on the elliptic curve is the embedding degree.
+    // The embedding degree is the smallest integer k such that the field extension F_p^k contains every point of order r.
+    // In our case the embedding degree = 2
+    let embedding_degree = 2;
+
+    // To compute an elliptic curve pairing in order to check our Kate polynomial commitments, we need we need a pair of points on an elliptic curve
+    // which have the same order anr return an element of field Fp^k.
+    // The points (x, y) and (x', y') are called a pair of points on the elliptic curve if they satisfy the equation y^2 = x^3 + ax + b.
+    // The points (x, y) and (x', y') are called a pair of points of order r on the elliptic curve if they satisfy the equation y^2 = x^3 + ax + b and r(x, y) = (x', y').
+
+    // For our second subgroup since 17 is prime, if we find just one of them we can be sure that it is a generator of the second subgroup.
+    // For the second subgroup we have (36,31u)
+    // TODO: How to define "u" ?
+    let point2_g = Point {
+        x: 36,
+        y: 31,
+        field: 101,
+    };
+
+    // Generating SRS
+    // First we will generate a random secret number "s" which is part of the toxic waste.
+    // For our example we will use s = 2
+    let s = 2;
+
+    // For the first group we will have n+3 elements, where n is the number of gates in our case 4 as we will see further ahead
+    // (2^0)*G1, (2^1)*G1, (2^2)*G1, (2^3)*G1, (2^4)*G1, (2^5)*G1, (2^6)*G1
+    let s_g1_0 = modular_exp(2, 0, 101); // 1
+    let s_g1_1 = modular_exp(2, 1, 101); // 2
+    let s_g1_2 = modular_exp(2, 2, 101); // 4
+    let s_g1_3 = modular_exp(2, 3, 101); // 8
+    let s_g1_4 = modular_exp(2, 4, 101); // 16
+    let s_g1_5 = modular_exp(2, 5, 101); // 15
+    let s_g1_6 = modular_exp(2, 6, 101); // 13
+
+    let srs_g1_0 = point_g;
+    let srs_g1_1 = point_2g;
+    let srs_g1_2 = point_4g;
+    let srs_g1_3 = point_8g;
+    let srs_g1_4 = point_16g;
+    let srs_g1_5 = point_15g;
+    let srs_g1_6 = point_13g;
+
+    // For the second group the Generator = (36,31u)
+
+    // TODO: fix on "u" based calculation
+    let srs_g2_0 = point2_g.clone(); // => (36,31u)
+    let srs_g2_1 = point_doubling(point2_g.clone()); // => (90,82u)
+
+    // Following the example on Plonk by Hand, we will try to generate a proof a verifier for the Pythagorean Theorem equation (a^2 + b^2 = c^2) 
+    // For this we will generate the following polynomial commitments, given that for each gate on a plonk, there can be 1 addition(2 if you consider the constant) and 1 multiplication:
+    // 1. x1^x1 = x2  ---- (a^2)
+    // 2. x3^x3 = x4  ---- (b^2)
+    // 3. x5^x5 = x6  ---- (c^2)
+    // 4. x2 + x4 = x6
+
+    // Plonk gate formula: (ql)*a + (qr)*b + (q0)*c + (qm)*a*b + qc = 0
+
+    // Given the polynomial commitments and the Plonk gate formula we can tell that
+    // x1^x1 = x2 => a = x1 and b = x1 and c = x2 => 0*a + 0*b + (-1)*c + 1*a*b + 0 = 0
+    // x3^x3 = x4 => a = x3 and b = x3 and c = x4 => 0*a + 0*b + (-1)*c + 1*a*b + 0 = 0
+    // x5^x5 = x6 => a = x5 and b = x5 and c = x6 => 0*a + 0*b + (-1)*c + 1*a*b + 0 = 0
+    // x2 + x4 = x6 => a = x2 and b = x4 and c = x6 => 1*a + 1*b + (-1)*c + 0*a*b + 0 = 0
+
+    // Given (3,4,5), these formulas, we can infer:
+    // ql, qr, q0, qm and qc are called "selectors" and a,b and c are called "assignments"
+    let ql = [0,0,0,1];
+    let qr = [0,0,0,1];
+    let q0 = [-1,-1,-1,-1];
+    let qm = [1,1,0,0];
+    let qc = [0,0,0,0];
+    let a = [3,4,5,9];
+    let b = [3,4,5,16];
+    let c = [9,16,25,25];
+
+    // These constraints are not enough because x2 from x1^x1 = x2 and x4 from x3^x3 = x4 are not linked with x2 + x4 = x6 (last constraint)
+    // For this we will need to add the "copy constraints"
+    // Copy constraints are used to link the assignments of different gates together.
+    
+
+
+
+
 }
 #[derive(Debug, Clone)]
 struct Point {
