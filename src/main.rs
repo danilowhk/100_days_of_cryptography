@@ -208,3 +208,28 @@ fn crypto_hack_modular_exp_exercise_4() {
 fn crypto_hack_modular_invert_exercise_5() {
     assert_eq!(modular_inversion(3, 13), Some(9));
 }
+#[test]
+fn plonk_by_hand_point_doubling_step_1() {
+    let n_field = 101;
+    let point_g1 = Point {
+        x: 1,
+        y: 2,
+        field: n_field,
+    };
+    let point_g2 = point_doubling(point_g1.clone());
+    assert_eq!(point_g2.x, 68);
+    assert_eq!(point_g2.y, 74);
+}
+
+#[test]
+fn plonk_by_hand_point_inversion_step_1() {
+    let n_field = 101;
+    let point_g2 = Point {
+        x: 68,
+        y: 74,
+        field: n_field,
+    };
+    let inverted_point_g2 = point_inversion(point_g2);
+    assert_eq!(inverted_point_g2.x, 68);
+    assert_eq!(inverted_point_g2.y, 27);
+}
