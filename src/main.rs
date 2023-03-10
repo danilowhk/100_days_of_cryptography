@@ -17,11 +17,14 @@ struct Point {
     field: i128,
 }
 
+// Elliptic curve point doubling is an operation that takes a point on an elliptic curve and returns a new point on the curve that is twice the original point. 
+// This operation is a building block of many elliptic curve algorithms, including scalar multiplication, which is used for public key cryptography.
+// The resulting point (x', y') is twice the original point (x, y) on the elliptic curve.
 fn point_doubling(point: Point) -> Point {
     let x = point.x;
     let y = point.y;
     // Define M
-    // 3*x^2
+    // 3*x^2 
     let x_2 = modular_exp(x, 2, point.field);
     let x_3 = modular_multiplication(x_2, 3, point.field);
     // 2*y
