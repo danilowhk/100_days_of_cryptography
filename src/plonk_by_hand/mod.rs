@@ -7,62 +7,91 @@ pub fn run_part_1() {
     };
     let point_2g = point_doubling(point_g.clone());
     let inverted_point_2g = point_inversion(point_2g.clone());
+
     println!("2G: {:?}", point_2g);
     println!("Inverted 2G: {:?}", inverted_point_2g);
+
     let point_3g = point_addition(point_g.clone(), point_2g.clone());
     let inverted_point_3g = point_inversion(point_3g.clone());
+
     println!("3G: {:?}", point_3g);
     println!("Inverted 3G: {:?}", inverted_point_3g);
+
     let point_4g = point_doubling(point_2g.clone());
     let inverted_point_4g = point_inversion(point_4g.clone());
+
     println!("4G: {:?}", point_4g);
     println!("Inverted 4G: {:?}", inverted_point_4g);
+
     let point_5g = point_addition(point_g.clone(), point_4g.clone());
     let inverted_point_5g = point_inversion(point_5g.clone());
+
     println!("5G: {:?}", point_5g);
     println!("Inverted 5G: {:?}", inverted_point_5g);
+
     let point_6g = point_addition(point_g.clone(), point_5g.clone());
     let inverted_point_6g = point_inversion(point_6g.clone());
+
     println!("6G: {:?}", point_6g);
     println!("Inverted 6G: {:?}", inverted_point_6g);
+
     let point_7g = point_addition(point_g.clone(), point_6g.clone());
     let inverted_point_7g = point_inversion(point_7g.clone());
+
     println!("7G: {:?}", point_7g);
     println!("Inverted 7G: {:?}", inverted_point_7g);
+
     let point_8g = point_doubling(point_4g.clone());
     let inverted_point_8g = point_inversion(point_8g.clone());
+
     println!("8G: {:?}", point_8g);
     println!("Inverted 8G: {:?}", inverted_point_8g);
+
     let point_9g = point_addition(point_3g.clone(), point_6g.clone());
     let inverted_point_9g = point_inversion(point_9g.clone());
+
     println!("9G: {:?}", point_9g);
     println!("Inverted 9G: {:?}", inverted_point_9g);
+
     let point_10g = point_doubling(point_5g.clone());
     let inverted_point_10g = point_inversion(point_10g.clone());
+
     println!("10G: {:?}", point_10g);
     println!("Inverted 10G: {:?}", inverted_point_10g);
+
     let point_11g = point_addition(point_4g.clone(), point_7g.clone());
     let inverted_point_11g = point_inversion(point_11g.clone());
+
     println!("11G: {:?}", point_11g);
     println!("Inverted 11G: {:?}", inverted_point_11g);
+
     let point_12g = point_addition(point_g.clone(), point_10g.clone());
     let inverted_point_12g = point_inversion(point_12g.clone());
+
     println!("12G: {:?}", point_12g);
     println!("Inverted 12G: {:?}", inverted_point_12g);
+
     let point_13g = point_addition(point_g.clone(), point_11g.clone());
     let inverted_point_13g = point_inversion(point_13g.clone());
+
     println!("13G: {:?}", point_13g);
     println!("Inverted 13G: {:?}", inverted_point_13g);
+
     let point_14g = point_addition(point_g.clone(), point_13g.clone());
     let inverted_point_14g = point_inversion(point_14g.clone());
+
     println!("14G: {:?}", point_14g);
     println!("Inverted 14G: {:?}", inverted_point_14g);
+
     let point_15g = point_addition(point_g.clone(), point_14g.clone());
     let inverted_point_15g = point_inversion(point_15g.clone());
+
     println!("15G: {:?}", point_15g);
     println!("Inverted 15G: {:?}", inverted_point_15g);
+
     let point_16g = point_doubling(point_8g.clone());
     let inverted_point_16g = point_inversion(point_16g.clone());
+
     println!("16G: {:?}", point_16g);
     println!("Inverted 16G: {:?}", inverted_point_16g);
     // Because inverted_point_32G = point_g , this subgroup has order 17
@@ -70,7 +99,6 @@ pub fn run_part_1() {
     let inverted_point_32g = point_inversion(point_32g.clone());
     println!("32G: {:?}", point_32g);
     println!("Inverted 32G: {:?}", inverted_point_32g);
-
 
     // Calculate Embedding Degree
     // The degree of the extension field of characteristic p that contains every point of order r on the elliptic curve is the embedding degree.
@@ -121,7 +149,7 @@ pub fn run_part_1() {
     let srs_g2_0 = point2_g.clone(); // => (36,31u)
     let srs_g2_1 = point_doubling(point2_g.clone()); // => (90,82u)
 
-    // Following the example on Plonk by Hand, we will try to generate a proof a verifier for the Pythagorean Theorem equation (a^2 + b^2 = c^2) 
+    // Following the example on Plonk by Hand, we will try to generate a proof a verifier for the Pythagorean Theorem equation (a^2 + b^2 = c^2)
     // For this we will generate the following polynomial commitments, given that for each gate on a plonk, there can be 1 addition(2 if you consider the constant) and 1 multiplication:
     // 1. x1^x1 = x2  ---- (a^2)
     // 2. x3^x3 = x4  ---- (b^2)
@@ -138,23 +166,73 @@ pub fn run_part_1() {
 
     // Given (3,4,5), these formulas, we can infer:
     // ql, qr, q0, qm and qc are called "selectors" and a,b and c are called "assignments"
-    let ql = [0,0,0,1];
-    let qr = [0,0,0,1];
-    let q0 = [-1,-1,-1,-1];
-    let qm = [1,1,0,0];
-    let qc = [0,0,0,0];
-    let a = [3,4,5,9];
-    let b = [3,4,5,16];
-    let c = [9,16,25,25];
+    let ql = [0, 0, 0, 1];
+    let qr = [0, 0, 0, 1];
+    let q0 = [-1, -1, -1, -1];
+    let qm = [1, 1, 0, 0];
+    let qc = [0, 0, 0, 0];
+    let a = [3, 4, 5, 9];
+    let b = [3, 4, 5, 16];
+    let c = [9, 16, 25, 25];
 
     // These constraints are not enough because x2 from x1^x1 = x2 and x4 from x3^x3 = x4 are not linked with x2 + x4 = x6 (last constraint)
     // For this we will need to add the "copy constraints"
     // Copy constraints are used to link the assignments of different gates together.
-    
 
+    // Copy constraints:
+    // a1 = b1
+    // a2 = b2
+    // a3 = b3
+    // c1 = a4
+    // c2 = b4
+    // c3 = c4
 
+    // Interpolating our vectors (ql, qr, q0, qm, qc, a, b, c):
+    // Given a vector, vector [5,10,15] , just by adding index, we can transform them into "points" => will use index (1,2,3) => (1,5) , (2,10) , (3,15)
+    // With this we would have 3 points and with Lagrenge interpolation, we would be able to generate a (n-1) => (3 -1) = 2 degree polynomial that would pass through all the points
+    // To transform vectors into "points" , we can use any domain, and for Plonk "roots of unity" are used
+    // The nth roots of unity of a field are the field elements x that satisfy x^n=1
+    // The vectors for our circuit and assignment are all of length four, so the domain of our polynomials must have at least four elements.
 
+    // Finding 4 roots of unity in F17
 
+    let root_0 = 1; // 1^4 = 1 (mod 17)
+    let root_1 = 4; // 4^4 = 1 (mod 17)
+    let root_2 = 16; // 16^4 = 1 (mod 17)
+    let root_3 = 13; // 13^4 = 1 (mod 17)
+
+    // No we need to label 12 of the values in our assigments( a, b ,c) with different fiel elements. //TODO: Why have to be different?
+    // So we chose cosets by multiplying H => (root_0, root_1, root_2, root_3) with k1 and k2
+    // Where k1 is chosen not an element of H and k2 is chosen that is neither an element from H and k1H
+
+    let k1 = 2;
+    let k2 = 3;
+
+    let H = [root_0, root_1, root_2, root_3];
+    let k1H = [k1 * root_0, k1 * root_1, k1 * root_2, k1 * root_3];
+    let k2H = [k2 * root_0, k2 * root_1, k2 * root_2, k2 * root_3];
+
+    // Now we will interpolate using the Roots of Unity
+    // We will start with a = (3, 4, 5, 9)
+    // The interpolated polynomial will be of degree 3 => 4 - 1 = 3
+    // fa(x) = q0 + q1*x + q2*x^2 + q3*x^3
+    // We want fa(1) = 3 , fa(4) = 4, fa(16) = 5, fa(13) = 9
+
+    // fa(1) = 3 => q0 + q1*1 + q2*1^2 + q3*1^3 = 3
+    // fa(4) = 4 => q0 + q1*4 + q2*4^2 + q3*4^3 = 4
+    // fa(16) = 5 => q0 + q1*16 + q2*16^2 + q3*16^3 = 5
+    // fa(13) = 9 => q0 + q1*13 + q2*13^2 + q3*13^3 = 9
+
+    // This can be rewritten in a matrix:
+    // [1 1 1 1] * [q0] = [3]
+    // [4 4 4 4]   [q1] = [4]
+    // [16 16 16 16] [q2] = [5]
+    // [13 13 13 13] [q3] = [9]
+
+    let a_vec = [3, 4, 5, 9];
+
+    let a_interpolation_result = interpolate_lagrange(&H, &a_vec);
+    println!("Interpolation Result: {:?}", a_interpolation_result);
 }
 #[derive(Debug, Clone)]
 struct Point {
@@ -361,6 +439,35 @@ pub fn extended_euclidean_algorithm(a: i128, b: i128) -> (i128, i128, i128) {
     let y = x1;
 
     (gcd, x, y)
+}
+pub fn interpolate_lagrange(x: &[i32], y: &[i32]) -> Vec<i32> {
+    // Ensure that the input arrays have the same length
+    assert_eq!(x.len(), y.len());
+
+    let degree = x.len() - 1;
+    let modulus = 17;
+
+    // Initialize the coefficients of the interpolating polynomial
+    let mut c = vec![0; degree + 1];
+
+    // Loop over the degrees of the polynomial
+    for k in 0..=degree {
+        // Compute the k-th coefficient using the Lagrange formula
+        let mut coeff = 0;
+        for j in 0..=degree {
+            if j != k {
+                let numerator = (modulus - x[j]) % modulus;
+                let denominator = (x[k] - x[j] + modulus) % modulus;
+                coeff += numerator
+                    * modular_inversion(denominator as i128, modulus as i128).unwrap() as i32
+                    % modulus;
+                coeff %= modulus;
+            }
+        }
+        c[k] = (y[k] * coeff) % modulus;
+    }
+
+    c
 }
 
 #[test]
