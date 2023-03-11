@@ -238,22 +238,3 @@ fn test_field_div() {
         assert!(t_inv * t == FieldElement::one());
     }
 }
-
-// mod tests {
-//     use super::FieldElement;
-
-//     #[test]
-//     fn inverse_test() {
-//         let x = FieldElement::new(2);
-//         let x_inv = x.inverse();
-
-//         assert_eq!(FieldElement::one(), x * x_inv)
-//     }
-
-//     #[test]
-//     fn test_field_wrap() {
-//         // Check pow, mul, and the modular operations
-//         let t = FieldElement(2).pow(30) * FieldElement(3) + FieldElement::one();
-//         assert!(t == FieldElement::zero())
-//     }
-// }
