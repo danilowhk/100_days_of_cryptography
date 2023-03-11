@@ -1,35 +1,31 @@
-
 use core::fmt;
-use std::ops::{Add, Mul, Div, Sub, Neg, MulAssign};
 use rand::Rng;
+use std::ops::{Add, Div, Mul, MulAssign, Neg, Sub};
 
 use super::{constants::MODULUS, utils::xgcd};
-
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct FieldElement(usize);
 
-impl FieldElement{
-    fn new(value: usize) -> Self {
-       FieldElement(value % MODULUS)
+impl FieldElement {
+    pub fn new(value: usize) -> Self {
+        FieldElement(value % MODULUS)
     }
 
-    
-
-    fn is_zero(&self) -> bool {
-        self.0== 0
+    pub fn is_zero(&self) -> bool {
+        self.0 == 0
     }
 
-    fn inverse(&self) -> Self {
-        let (t , r  , s)= xgcd(MODULUS as i128, self.0 as i128);
+    pub fn inverse(&self) -> Self {
+        let (t, r, s) = xgcd(MODULUS as i128, self.0 as i128);
         t
     }
 
-    fn zero() -> Self {
+    pub fn zero() -> Self {
         FieldElement::new(0)
     }
 
-    fn one() -> Self{
+    pub fn one() -> Self {
         FieldElement::new(1)
     }
 
@@ -59,11 +55,11 @@ impl FieldElement{
         h * self == FieldElement::one()
     }
 
-    fn generator() -> Self{
+    pub fn generator() -> Self {
         FieldElement(5)
     }
 
-    fn sample(&self, byte_array: &[u8]) -> FieldElement {
+    pub fn sample(&self, byte_array: &[u8]) -> FieldElement {
         let mut acc = 0;
         for b in byte_array {
             acc = (acc << 8) ^ u128::from(*b);
@@ -82,7 +78,7 @@ impl FieldElement{
         fe
     }
 
-    fn primitive_nth_root_of_unity(n: usize) -> Self{
+    pub fn primitive_nth_root_of_unity(n: usize) -> Self {
         todo!()
         // FieldElement::generator().pow((MODULUS - 1) / n)
     }
@@ -98,15 +94,12 @@ impl FieldElement{
     //     return root;
 
     // }
-
-
 }
 
-
 impl Add for FieldElement {
-    type Output = FieldElement; 
-    fn add(self, rhs: FieldElement) -> Self::Output{
-        FieldElement::new(self.0+ rhs.0)
+    type Output = FieldElement;
+    fn add(self, rhs: FieldElement) -> Self::Output {
+        FieldElement::new(self.0 + rhs.0)
     }
 }
 
@@ -126,42 +119,41 @@ impl std::ops::AddAssign for FieldElement {
 
 impl Mul for FieldElement {
     type Output = FieldElement;
-    fn mul(self, rhs: FieldElement) -> Self::Output{
-        FieldElement::new(self.0* rhs.0)
+    fn mul(self, rhs: FieldElement) -> Self::Output {
+        FieldElement::new(self.0 * rhs.0)
     }
 }
 
-
-impl Mul<&FieldElement> for FieldElement{
+impl Mul<&FieldElement> for FieldElement {
     type Output = FieldElement;
-    fn mul(self, rhs: &FieldElement) -> Self::Output{
-        FieldElement::new(self.0* rhs.0)
+    fn mul(self, rhs: &FieldElement) -> Self::Output {
+        FieldElement::new(self.0 * rhs.0)
     }
 }
 
 impl MulAssign for FieldElement {
-    fn mul_assign(&mut self, rhs: Self){
-        *self = FieldElement::new(self.0* rhs.0)
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = FieldElement::new(self.0 * rhs.0)
     }
 }
 
-impl MulAssign<&FieldElement> for FieldElement{
-    fn mul_assign(&mut self, rhs: &Self){
-        *self = FieldElement::new(self.0* rhs.0)
+impl MulAssign<&FieldElement> for FieldElement {
+    fn mul_assign(&mut self, rhs: &Self) {
+        *self = FieldElement::new(self.0 * rhs.0)
     }
 }
 
 impl Sub for FieldElement {
     type Output = FieldElement;
-    fn sub(self, rhs: FieldElement) -> Self::Output{
-        FieldElement::new(self.0- rhs.0)
+    fn sub(self, rhs: FieldElement) -> Self::Output {
+        FieldElement::new(self.0 - rhs.0)
     }
 }
 
 impl Sub<&FieldElement> for FieldElement {
     type Output = FieldElement;
-    fn sub(self, rhs: &FieldElement) -> Self::Output{
-        FieldElement::new(self.0- rhs.0)
+    fn sub(self, rhs: &FieldElement) -> Self::Output {
+        FieldElement::new(self.0 - rhs.0)
     }
 }
 
@@ -173,7 +165,6 @@ impl Div<usize> for FieldElement {
     }
 }
 
-
 impl Div for FieldElement {
     type Output = FieldElement;
 
@@ -182,7 +173,7 @@ impl Div for FieldElement {
     }
 }
 
-impl std::ops::Neg for FieldElement {
+impl Neg for FieldElement {
     type Output = FieldElement;
 
     fn neg(self) -> Self::Output {
@@ -213,19 +204,17 @@ impl From<FieldElement> for usize {
     }
 }
 
-
-
 #[test]
 fn inverse_test() {
     let x = FieldElement::new(2);
     let x_inv = x.inverse();
 
-    assert_eq!(FieldElement::one(), x*x_inv)
+    assert_eq!(FieldElement::one(), x * x_inv)
 }
 
 #[test]
 fn test_field_wrap() {
-    let t = FieldElement(2).pow(30)*FieldElement(3) + FieldElement::one();
+    let t = FieldElement(2).pow(30) * FieldElement(3) + FieldElement::one();
     assert!(t == FieldElement::zero())
 }
 
