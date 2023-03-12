@@ -1,6 +1,7 @@
 use super::field_element::FieldElement;
 use core;
-use std::ops::{Add, Mul, Neg, Sub};
+use itertools::{enumerate, EitherOrBoth, Itertools};
+use std::ops::{Add, BitXor, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Polynomial(Vec<FieldElement>);
@@ -50,6 +51,130 @@ impl Polynomial {
         self.clone()
             .get_nth_degree_coefficient(self.clone().degree() as usize)
     }
+
+    //TODO: Study more and understand polynomial division algorithms
+    // Current code from lambdaclass/STARK101-rs
+    pub fn qdiv(self, other: Polynomial) -> (Polynomial, Polynomial) {
+        let other_elems = other.0;
+        let self_elems = self.0;
+
+        assert!(other_elems.len() != 0, "Dividing by zero polynomial.");
+
+        if self_elems.is_empty() {
+            return (Polynomial(vec![]), Polynomial(vec![]));
+        }
+
+        // Initialize remainder as a copy of self
+        let mut rem = self_elems.clone();
+
+        // Compute the difference between the degrees of self and other
+        let mut degree_difference = rem.len() as usize - other_elems.len() as usize;
+
+        // Initialize quotient with zeros
+        let mut quotient: Vec<FieldElement> = if degree_difference > 0 {
+            vec![FieldElement::zero(); degree_difference + 1]
+        } else {
+            vec![FieldElement::zero()]
+        };
+
+        // Perform long division until the remainder is smaller than "other"
+        while degree_difference >= 0 {
+            // Compute the next coefficient of the quotient
+            let tmp = rem.last().unwrap().to_owned() * other_elems.last().unwrap().inverse();
+            quotient[degree_difference] = quotient[degree_difference] + tmp;
+
+            // Update the remainder
+            let mut last_non_zero = degree_difference as isize - 1;
+            for (i, coef) in enumerate(other_elems.clone()) {
+                let k = i + degree_difference as usize;
+                rem[k] = rem[k] - (tmp * coef);
+                if rem[k] != FieldElement::zero() {
+                    last_non_zero = k as isize;
+                }
+            }
+            //TODO: Understand why we need to eliminate trailing zeros
+            // Eliminate trailing zeroes from the remainder
+            rem = rem.into_iter().take((last_non_zero + 1) as usize).collect();
+
+            // Update the degree difference
+            degree_difference = rem.len() as usize - other_elems.len() as usize;
+        }
+
+        return (Polynomial(quotient), Polynomial(rem));
+    }
+
+    pub fn module(self, other: Polynomial) -> Polynomial {
+        let (q, r) = self.clone().qdiv(other.clone());
+        r
+    }
+
+    pub fn pow(&self, other: usize) -> Self {
+        // Initialize variables
+        let mut other = other;
+        let mut res = Polynomial(vec![FieldElement::one()]);
+        let mut current = self.to_owned();
+
+        // Loop while other is not zero
+        loop {
+            // If the current bit of other is 1, multiply result by current
+            if other % 2 != 0 {
+                res = res * current.to_owned();
+            }
+
+            if other == 0 {
+                break;
+            }
+
+            // Divide other by 2
+            other >>= 1;
+
+            // Square the current polynomial
+            current = current.to_owned() * current;
+        }
+        // Return the result
+        res
+    }
+    // Evaluate the polynomial at the given point using naive evaluation(not so fast).
+    pub fn evaluate(&self, point: FieldElement) -> FieldElement {
+        // Initialize xi to be 1 and value to be 0.
+        let mut xi = FieldElement::one();
+        let mut value = FieldElement::zero();
+
+        // Iterate over each coefficient in the polynomial.
+        for coef in self.clone().0 {
+            // Evaluate the value of the polynomial at the given point.
+            value = value + (coef * xi);
+            // Update xi for the next coefficient multiplicantion. (x , x^2, x^3, ...)
+            xi = xi * point;
+        }
+
+        // Return the evaluated value of the polynomial at the given point.
+        value
+    }
+
+    // Evaluates the polynomial at the given point using Horner evaluation(Very very interesting!).
+    // From lambdaclass/STARK101-rs
+    pub fn eval(&self, point: impl Into<FieldElement>) -> FieldElement {
+        // Conver point into FieldElement type.
+        let point: FieldElement = point.into();
+        // Initialize val to be 0.
+        let mut val = FieldElement::zero();
+
+        // Iterate over each coefficient in the polynomial in reverse order.
+        for coef in self.0.clone().into_iter().rev() {
+            // Update val by multiplying it with point and adding the current coefficient.
+            val = val * point + coef;
+        }
+
+        // Return the evaluated value of the polynomial at the given point.
+        val
+    }
+
+    // Evaluate the polynomial at the given domain using naive evaluation for each point in the domain.
+    pub fn evaluate_domain(&self, domain: &[FieldElement]) -> Vec<FieldElement> {
+        // Iterate through domain and run "evaluate function" for each point in domain.
+        domain.iter().map(|&d| self.evaluate(d)).collect()
+    }
 }
 
 impl Sub for Polynomial {
@@ -85,27 +210,64 @@ impl Neg for Polynomial {
     }
 }
 
-// impl Mul for Polynomial {
-//     type Output = Polynomial;
+impl Mul for Polynomial {
+    type Output = Polynomial;
+    fn mul(self, rhs: Polynomial) -> Self::Output {
+        // Check if either inputs are empty
+        if self.clone().0.is_empty() || rhs.clone().0.is_empty() {
+            return Polynomial::new(vec![]);
+        }
+        // Initialize some variables
+        // Set `zero` to the additive identity of the field
+        let zero = FieldElement::zero();
+        // Calculate the length of the product polynomial
+        let len = self.clone().0.len() + rhs.clone().0.len() - 1;
+        // Create a buffer array to store the coefficients of the product polynomial
+        let mut buff = vec![zero; len];
+        // Multiply the polynomials
+        for i in 0..self.clone().0.len() {
+            if self.clone().is_zero() {
+                continue;
+            }
 
-// }
+            for j in 0..rhs.clone().0.len() {
+                buff[i + j] += self.clone().0[i] * rhs.clone().0[j]
+            }
+        }
 
-// pub fn mul(&self, other: &Polynomial) -> Polynomial {
-//     if self.coefficients.is_empty() || other.coefficients.is_empty() {
-//         return Polynomial::new(vec![]);
-//     }
-//     let zero = self.coefficients[0].field().zero();
-//     let len = self.coefficients.len() + other.coefficients.len() - 1;
-//     let mut buf = vec![zero; len];
-//     for i in 0..self.coefficients.len() {
-//         if self.coefficients[i].is_zero() {
-//             continue; // optimization for sparse polynomials
+        Polynomial::new(buff)
+    }
+}
+
+impl Div for Polynomial {
+    type Output = Polynomial;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        let (div, rem) = self.qdiv(rhs);
+        assert!(rem.0.is_empty(), "Polynomials are not divisible.");
+        div
+    }
+}
+
+// impl ops::BitXor<usize> for Polynomial {
+//     type Output = Self;
+
+//     fn bitxor(self, exponent: usize) -> Self::Output {
+//         if self.is_zero() {
+//             return Polynomial(vec![]);
 //         }
-//         for j in 0..other.coefficients.len() {
-//             buf[i+j] += self.coefficients[i] * other.coefficients[j];
+//         if exponent == 0 {
+//             return Polynomial(vec![self.coefficients[0].field.one()]);
 //         }
+//         let mut acc = Polynomial(vec![self.coefficients[0].field.one()]);
+//         for i in (0..exponent.trailing_zeros().wrapping_neg() as usize).rev() {
+//             acc = acc.clone() * acc.clone();
+//             if (1 << i) & exponent != 0 {
+//                 acc = acc.clone() * self.clone();
+//             }
+//         }
+//         acc
 //     }
-//     Polynomial::new(buf)
 // }
 
 // impl From<usize> for Polynomial {
