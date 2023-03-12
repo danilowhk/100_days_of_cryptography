@@ -175,6 +175,84 @@ impl Polynomial {
         // Iterate through domain and run "evaluate function" for each point in domain.
         domain.iter().map(|&d| self.evaluate(d)).collect()
     }
+
+    // Given a set of `domain` and corresponding `values`, returns a polynomial of domain.len() - 1
+    // that evaluates to `values[i]` on `domain[i]` for all i.
+    pub fn interpolate_domain(domain: &[FieldElement], values: &[FieldElement]) -> Polynomial {
+        // Ensure that the lenght of the `domain` and `values` are the same.
+        assert_eq!(
+            domain.len(),
+            values.len(),
+            "number of elements in domain does not match number of values -- cannot interpolate"
+        );
+
+        //Ensure that the length of the `domain` is at least 1.
+        assert!(!domain.is_empty(), "cannot interpolate between zero points");
+
+        // Create the polynomial x = 1 * x^1 + 0 * x^0
+        let x = Polynomial(vec![FieldElement::zero(), FieldElement::one()]);
+
+        // Create an empty polynomial as accumulator.
+        let mut acc = Polynomial(vec![]);
+
+        //For each element in `domain`, construct a Lagrange polynomial.
+        for i in 0..domain.len() {
+            // Create the polynomial `prod = values[i] * (x - domain[j]) * ((domain[i] - domain[j])^-1)`.
+            let mut prod = Polynomial(vec![values[i]]);
+            for j in 0..domain.len() {
+                if i == j {
+                    continue;
+                }
+                let diff = domain[i] - domain[j];
+                prod = prod
+                    * (x.clone() - Polynomial(vec![domain[j]]))
+                    * Polynomial(vec![diff.inverse()]);
+            }
+            // Add `prod` to the accumulator polynomial L(x) = y1 L1(x) + y2 L2(x) + ... + yn Ln(x)
+            acc = acc + prod;
+        }
+        acc
+    }
+
+    // Given a vector of `domain` values, returns the zero polynomial with roots at each value in `domain`.
+    fn zerofier_domain(domain: &[FieldElement]) -> Polynomial {
+        // Create the polynomial x = x^1 + 0 * x^0
+        let x = Polynomial(vec![FieldElement::zero(), FieldElement::one()]);
+        // Create the value 1
+        let mut acc = Polynomial(vec![FieldElement::one()]);
+        for d in domain {
+            // Create the polynomial d and multiply it with the accumulator polynomial , multiply `acc` by `(x - d)`.
+            acc = acc * (x.clone() - Polynomial(vec![*d]));
+        }
+        acc
+    }
+
+    // Scales the polynomial by the given `factor`.
+    // Specifically, obtains the coefficients of `f(c*x)` from the coefficients of `f(X)`.
+    // For example: f(X) = 1 + 2X + 3X^2, f(2X) = 1 + 2*2X + 4*3X^2
+    // This function is useful when `f(X)` is defined to take a sequence of values on the powers of `c`.
+    pub fn scale(&self, factor: &FieldElement) -> Self {
+        let scaled_coeffs: Vec<FieldElement> = self
+            .clone()
+            .0
+            .iter()
+            .enumerate()
+            .map(|(i, coeff)| factor.pow(i as usize) * coeff)
+            .collect();
+        Polynomial(scaled_coeffs)
+    }
+
+    // Given a vector of `(x, y)` points, tests whetter they lie on the same line.
+    pub fn test_colinearity(points: &[(FieldElement, FieldElement)]) -> bool {
+        // Get the `x` values from the points.
+        let domain: Vec<FieldElement> = points.iter().map(|(x, _)| *x).collect();
+        // Get the `y` values from the points.
+        let values: Vec<FieldElement> = points.iter().map(|(_, y)| *y).collect();
+        // Interpolate a polynomial from the points.
+        let polynomial = Self::interpolate_domain(&domain, &values);
+        // Check if polynomial are colinear or not. (If they are in the same line or not)
+        polynomial.degree() <= 1
+    }
 }
 
 impl Sub for Polynomial {
