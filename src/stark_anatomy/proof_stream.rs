@@ -1,7 +1,5 @@
 use bincode;
 use serde::{Deserialize, Serialize};
-use serde_cbor;
-use sha256;
 use sha3::{Digest, Sha3_256};
 
 #[derive(Default, Serialize, Deserialize)]
