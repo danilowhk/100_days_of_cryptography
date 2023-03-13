@@ -9,6 +9,12 @@ pub struct ProofStream {
 }
 
 impl ProofStream {
+    pub fn new() -> Self {
+        ProofStream {
+            objects: Vec::new(),
+            read_index: 0,
+        }
+    }
     // A funciton to push an object into the vector
     pub fn push(&mut self, obj: String) {
         self.objects.push(obj);
