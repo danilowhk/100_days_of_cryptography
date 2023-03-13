@@ -11,6 +11,10 @@ impl Polynomial {
         Polynomial(coefficients)
     }
 
+    pub fn coefs(&self) -> &[FieldElement] {
+        &self.0
+    }
+
     pub fn degree(self) -> i32 {
         // Check if its empty polynomial
         if self.0.is_empty() {
