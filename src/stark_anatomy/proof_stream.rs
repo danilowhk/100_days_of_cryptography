@@ -1,8 +1,11 @@
-use std::{any::Any, sync::Arc, error::Error};
+use std::{any::Any, error::Error, sync::Arc};
 
 use bincode;
 use serde::{Deserialize, Serialize};
-use sha3::{Shake256, digest::{Update, XofReader, ExtendableOutput}};
+use sha3::{
+    digest::{ExtendableOutput, Update, XofReader},
+    Shake256,
+};
 use std::io::Read;
 
 #[derive(Default, Serialize, Deserialize)]
@@ -65,7 +68,11 @@ impl ProofStream {
         let mut hasher = Shake256::default();
         hasher.update(&self.serialize());
         let mut output = vec![0_u8; num_bytes];
-        hasher.finalize_xof().take(num_bytes.try_into().unwrap()).read_exact(&mut output).unwrap();
+        hasher
+            .finalize_xof()
+            .take(num_bytes.try_into().unwrap())
+            .read_exact(&mut output)
+            .unwrap();
         output
     }
     // pub fn verifier_fiat_shamir(self, num_bytes: usize) -> [u8; 32] {
@@ -87,7 +94,11 @@ impl ProofStream {
         let mut hasher = Shake256::default();
         hasher.update(&bincode::serialize(&self.objects[..self.read_index]).unwrap());
         let mut output = vec![0_u8; num_bytes];
-        hasher.finalize_xof().take(num_bytes.try_into().unwrap()).read_exact(&mut output).unwrap();
+        hasher
+            .finalize_xof()
+            .take(num_bytes.try_into().unwrap())
+            .read_exact(&mut output)
+            .unwrap();
         output
     }
 
@@ -111,11 +122,31 @@ fn test_serialize() {
     let serialized = proof1.serialize();
     let mut proof2 = ProofStream::deserialize(serialized);
 
-    assert_eq!(bincode::deserialize::<i32>(&proof1.pull().unwrap()).unwrap(), bincode::deserialize::<i32>(&proof2.pull().unwrap()).unwrap(), "pulled object 0 don't match");
-    assert_eq!(serde_json::from_slice::<serde_json::Value>(&proof1.pull().unwrap()).unwrap(), serde_json::from_slice::<serde_json::Value>(&proof2.pull().unwrap()).unwrap(), "pulled object 1 don't match");
-    assert_eq!(serde_json::from_slice::<serde_json::Value>(&proof1.pull().unwrap()).unwrap(), serde_json::from_slice::<serde_json::Value>(&proof2.pull().unwrap()).unwrap(), "pulled object 2 don't match");
-    assert_eq!(bincode::deserialize::<i32>(&proof1.pull().unwrap()).unwrap(), 2, "object 3 pulled from proof1 is not 2");
-    assert_eq!(bincode::deserialize::<i32>(&proof2.pull().unwrap()).unwrap(), 2, "object 3 pulled from proof2 is not 2");
+    assert_eq!(
+        bincode::deserialize::<i32>(&proof1.pull().unwrap()).unwrap(),
+        bincode::deserialize::<i32>(&proof2.pull().unwrap()).unwrap(),
+        "pulled object 0 don't match"
+    );
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&proof1.pull().unwrap()).unwrap(),
+        serde_json::from_slice::<serde_json::Value>(&proof2.pull().unwrap()).unwrap(),
+        "pulled object 1 don't match"
+    );
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&proof1.pull().unwrap()).unwrap(),
+        serde_json::from_slice::<serde_json::Value>(&proof2.pull().unwrap()).unwrap(),
+        "pulled object 2 don't match"
+    );
+    assert_eq!(
+        bincode::deserialize::<i32>(&proof1.pull().unwrap()).unwrap(),
+        2,
+        "object 3 pulled from proof1 is not 2"
+    );
+    assert_eq!(
+        bincode::deserialize::<i32>(&proof2.pull().unwrap()).unwrap(),
+        2,
+        "object 3 pulled from proof2 is not 2"
+    );
     assert_eq!(
         proof1.prover_fiat_shamir(32),
         proof2.prover_fiat_shamir(32),
