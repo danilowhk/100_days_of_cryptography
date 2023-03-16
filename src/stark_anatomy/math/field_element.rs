@@ -59,7 +59,7 @@ impl FieldElement {
         FieldElement(5)
     }
 
-    pub fn sample(&self, byte_array: &[u8]) -> FieldElement {
+    pub fn sample(byte_array: &[u8]) -> FieldElement {
         let mut acc = 0;
         for b in byte_array {
             acc = (acc << 8) ^ u128::from(*b);
@@ -94,6 +94,11 @@ impl FieldElement {
     //     return root;
 
     // }
+
+    pub fn to_bytes(&self) -> [u8; 8] {
+        let bytes = self.0.to_le_bytes(); // Convert usize to little-endian byte array
+        bytes.try_into().expect("usize should be exactly 8 bytes")
+    }
 }
 
 impl Add for FieldElement {
