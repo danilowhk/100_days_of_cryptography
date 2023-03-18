@@ -85,6 +85,23 @@ impl Stark {
         }
 
     }
+
+    fn transition_degree_bounds(&self, transition_constraints: &Vec<Vec<(usize, usize)>>) -> Vec<usize> {
+        let point_degrees = std::iter::once(1).chain(std::iter::repeat(self.original_trace_length + self.num_randomizers -1).take(2 * self.num_registers)).collect::<Vec<usize>>();
+
+        transition_contraints.iter().map(|a| { a.iter().map(|k_v| k_v.iter().map(|(r, l)| r*l).sum::<usize>()).max().unwrap()}).collect()
+    }
+
+    fn transition_quotient_degree_bounds(&self, transition_constraints: &Vec<Vec<(usize, usize)>>) -> Vec<usize> {
+        let degree_bounds = self.transition_degree_bounds(transition_constraints);
+        degree_bounds.iter().map(|d| d - (self.original_trace_length -1)).collect()
+    }
+
+    fn max_degree(&self, transition_constraints: &Vec<Vec<(usize, usize)>>) -> usize {
+        let md = self.transition_quotient_degree_bounds(transition_constraints).iter().max().unwrap();
+        (1 << (md.next_power_of_tow().trailing_zeros() as usize)) -1
+    }
+
 }
 
 
